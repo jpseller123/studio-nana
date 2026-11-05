@@ -363,6 +363,9 @@ main { overflow-x: clip; }                     /* 기울인 사진 때문에 옆
   .hero-inner { grid-template-columns: 1fr; text-align: center; }
   .hero-sub { margin-inline: auto; }
   .hero-actions { justify-content: center; }
+  /* 휴대폰: 히어로의 두 버튼(협업 문의하기 · 나나 알아보기)을 같은 크기로 */
+  .hero-actions { flex-direction: column; align-items: stretch; max-width: 360px; margin-inline: auto; }
+  .hero-actions .btn { width: 100%; min-height: 64px; padding: 16px 24px; font-size: 1.2rem; }
   .hero-art { order: -1; }                     /* 휴대폰에서는 캐릭터가 먼저 */
   .hero-blob { width: min(300px, 80%); }
   .hero-photo.photo { width: min(270px, 70%); }
