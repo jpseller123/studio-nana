@@ -98,19 +98,19 @@ if (!reduceMotion) {
 }
 
 // ===== 나나캣 (nanacat.js 로 그린 캐릭터, 동작은 nanacat.css) =====
-// 동작 이름: stand(서 있기) · walk(걷기) · yawn(하품) · jump(점프) · wag(꼬리 흔들기) · wave(손 흔들기) · surprise(깜짝) · sleep(쿨쿨)
+// 동작 이름: stand(서 있기) · walk(걷기) · run(달리기) · jump(점프) · wave(손 흔들기) · excited(신남) · sad(슬픔) · heart(하트 안기) · yawn(하품) · sleep(쿨쿨) · surprise(깜짝)
 const hasNanaCat = Boolean(window.NanaCat);
 
 // 같은 동작을 처음부터 다시 보여 주기
 function restartPose(el, pose) {
-  el.dataset.pose = "stand";
+  NanaCat.set(el, "stand");
   void el.getBoundingClientRect();
-  el.dataset.pose = pose;
+  NanaCat.set(el, pose);
 }
 
 // --- 1) 첫 화면의 나나캣: 마우스를 올리거나 누르면 랜덤 동작, 가만히 있어도 가끔 움직여요 ---
 const cat = document.getElementById("cat");
-const HERO_MOVES = { jump: 900, wag: 1900, wave: 1800, yawn: 2700, surprise: 1000, walk: 2400 };  // 동작: 걸리는 시간(ms)
+const HERO_MOVES = { jump: 900, excited: 1900, wave: 1800, yawn: 2700, surprise: 1000, walk: 2400, heart: 2400, sad: 2200 };  // 동작: 걸리는 시간(ms)
 let heroCat = null;
 let heroBusy = false;
 let heroLast = "";
@@ -125,7 +125,7 @@ function playHeroMove() {
   heroLast = names[Math.floor(Math.random() * names.length)];
   heroBusy = true;
   restartPose(heroCat, heroLast);
-  setTimeout(() => { heroCat.dataset.pose = "stand"; heroBusy = false; }, HERO_MOVES[heroLast]);
+  setTimeout(() => { NanaCat.set(heroCat, "stand"); heroBusy = false; }, HERO_MOVES[heroLast]);
 }
 cat.addEventListener("mouseenter", playHeroMove);
 cat.addEventListener("click", playHeroMove);          // 휴대폰은 누르면 움직여요
@@ -141,7 +141,7 @@ function scheduleHeroIdle() {                         // 7~13초마다 혼자서
 if (heroCat && !reduceMotion) scheduleHeroIdle();
 
 // --- 2) 마우스 포인터 나나캣: 컴퓨터 마우스에서만, 움직임 줄이기 설정이 아닐 때만 ---
-//   움직이면 걷기 · 멈추면 서 있기 · 링크 위에서 꼬리 흔들기 · 클릭하면 점프 · 4초 가만히 있으면 하품 후 쿨쿨
+//   움직이면 걷기(빠르게 움직이면 달리기) · 멈추면 서 있기 · 링크 위에서 신남 · 클릭하면 점프 · 4초 가만히 있으면 하품 후 쿨쿨
 const canFollow = hasNanaCat && !reduceMotion && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 if (canFollow) {
   const SIZE = 48;                                    // 포인터 크기(px). 클릭 위치는 나나캣 가운데
@@ -157,12 +157,12 @@ if (canFollow) {
 
   let pose = "stand";
   let oneShot = "";                                   // 지금 하는 한 번짜리 동작(jump · yawn), 없으면 ""
-  let oneShotTimer, stopTimer, sleepTimer, lastX = null, excited = false;
+  let oneShotTimer, stopTimer, sleepTimer, lastX = null, lastY = 0, lastTime = 0, excited = false;
 
   function setPose(next) {
     if (pose === next) return;
     pose = next;
-    pointerCat.dataset.pose = next;
+    NanaCat.set(pointerCat, next);
   }
   function endOneShot() {
     clearTimeout(oneShotTimer);
@@ -175,7 +175,7 @@ if (canFollow) {
     restartPose(pointerCat, name);
     oneShotTimer = setTimeout(() => { oneShot = ""; after(); }, ms);
   }
-  function restingPose() { setPose(excited ? "wag" : "stand"); }
+  function restingPose() { setPose(excited ? "excited" : "stand"); }
   function armSleep() {                               // 4초 가만히 있으면 하품하고 쿨쿨
     clearTimeout(sleepTimer);
     if (excited) return;
@@ -194,12 +194,16 @@ if (canFollow) {
     if (lastX !== null && Math.abs(event.clientX - lastX) > 1) {
       flipBox.classList.toggle("flip", event.clientX > lastX);    // 가는 쪽으로 몸을 돌려요
     }
+    const now = performance.now();                                // 마우스가 빠른지 재 보기 (빠르면 달리기)
+    const speed = lastX === null ? 0 : Math.hypot(event.clientX - lastX, event.clientY - lastY) / Math.max(now - lastTime, 1);
     lastX = event.clientX;
+    lastY = event.clientY;
+    lastTime = now;
     clearTimeout(sleepTimer);
     clearTimeout(stopTimer);
     if (oneShot !== "jump") {                                     // 점프 중이 아니면 걷기 (하품 · 쿨쿨은 깨워요)
       if (oneShot) endOneShot();
-      setPose("walk");
+      setPose(speed > 1.4 ? "run" : "walk");
     }
     stopTimer = setTimeout(() => {
       if (oneShot) return;
@@ -210,7 +214,7 @@ if (canFollow) {
 
   document.addEventListener("pointerover", (event) => {           // 링크 · 버튼 위에서는 신나요
     excited = Boolean(event.target.closest && event.target.closest("a, button, [role='button']"));
-    if (!oneShot && pose !== "walk") { restingPose(); if (excited) clearTimeout(sleepTimer); else armSleep(); }
+    if (!oneShot && pose !== "walk" && pose !== "run") { restingPose(); if (excited) clearTimeout(sleepTimer); else armSleep(); }
   });
 
   document.addEventListener("pointerdown", (event) => {           // 클릭하면 점프!

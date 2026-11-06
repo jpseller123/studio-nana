@@ -1,25 +1,43 @@
 /* ===== 나나캣 동작 (nanacat.js 로 그린 그림을 움직여요) ===== */
-/* 동작은 .nanacat 의 data-pose 값으로 바뀌어요: stand · walk · yawn · jump · wag · wave · surprise · sleep */
+/* 동작은 .nanacat 의 data-pose, 표정은 data-face 값으로 바뀌어요 (NanaCat.set 이 둘을 함께 바꿔 줘요) */
 /* --t 는 '동작 시계'예요. 보통은 0s, 캐릭터 시트에서는 멈춘 장면을 고를 때 써요. */
 
 .nanacat { display: block; width: 100%; height: auto; overflow: visible; --t: 0s; }
 
+/* ----- 표정: 같은 때에 하나만 보여요 ----- */
+.nc-face { display: none; }
+.nanacat:not([data-face]) .nc-face-open,
+.nanacat[data-face="open"] .nc-face-open,
+.nanacat[data-face="happy"] .nc-face-happy,
+.nanacat[data-face="wink"] .nc-face-wink,
+.nanacat[data-face="squint"] .nc-face-squint,
+.nanacat[data-face="surprise"] .nc-face-surprise,
+.nanacat[data-face="shy"] .nc-face-shy,
+.nanacat[data-face="confused"] .nc-face-confused,
+.nanacat[data-face="sad"] .nc-face-sad,
+.nanacat[data-face="angry"] .nc-face-angry,
+.nanacat[data-face="love"] .nc-face-love,
+.nanacat[data-face="sleep"] .nc-face-sleep { display: inline; }
+.nanacat[data-face="shy"] .nc-blush { transform: scale(1.18, 1.25); }
+.nc-blush { transform-box: fill-box; transform-origin: center; }
+
 /* ----- 기본(서 있기): 숨쉬기 · 꼬리 살랑 · 눈 깜빡 · 귀 쫑긋 ----- */
-.nc-all { transform-origin: 100px 190px; }
-.nc-body { transform-origin: 100px 192px; animation: nc-breathe 3.2s ease-in-out infinite; animation-delay: var(--t); }
-.nc-tail { transform-origin: 138px 168px; animation: nc-sway 3s ease-in-out infinite; animation-delay: var(--t); }
-.nc-head { transform-origin: 100px 140px; }
-.nc-ear-l { transform-origin: 72px 60px; animation: nc-ear-l 6s ease-in-out infinite; animation-delay: var(--t); }
-.nc-ear-r { transform-origin: 128px 60px; animation: nc-ear-r 7s ease-in-out infinite; animation-delay: var(--t); }
-.nc-eye-l { transform-origin: 78px 96px; }
-.nc-eye-r { transform-origin: 122px 96px; }
-.nc-eye { animation: nc-blink 4.2s infinite; animation-delay: var(--t); }
-.nc-leg-l { transform-origin: 82px 180px; }
-.nc-leg-r { transform-origin: 118px 180px; }
-.nc-eye-closed, .nc-eye-happy, .nc-zzz, .nc-wave { opacity: 0; }
-.nc-mouth-open { opacity: 0; transform-origin: 100px 110px; transform: scaleY(0); }
-.nc-wave { transform-origin: 69px 154px; }
-.nc-shadow { transform-origin: 100px 193px; }
+.nc-all { transform-origin: 100px 194px; }
+.nc-body { transform-origin: 100px 194px; animation: nc-breathe 3.2s ease-in-out infinite; animation-delay: var(--t); }
+.nc-tail { transform-origin: 130px 185px; animation: nc-sway 3s ease-in-out infinite; animation-delay: var(--t); }
+.nc-head { transform-origin: 100px 124px; }
+.nc-ear-l { transform-origin: 58px 66px; animation: nc-ear-l 6s ease-in-out infinite; animation-delay: var(--t); }
+.nc-ear-r { transform-origin: 142px 66px; animation: nc-ear-r 7s ease-in-out infinite; animation-delay: var(--t); }
+.nc-eyes-open { transform-origin: 100px 92px; animation: nc-blink 4.2s infinite; animation-delay: var(--t); }
+.nc-arm-l { transform-origin: 67px 140px; }
+.nc-arm-r { transform-origin: 133px 140px; }
+.nc-leg-l { transform-origin: 84px 176px; }
+.nc-leg-r { transform-origin: 116px 176px; }
+.nc-whisk { transform-origin: 100px 104px; }
+.nc-shadow { transform-origin: 100px 195px; }
+.nc-mouth-open { opacity: 0; transform-origin: 100px 101px; transform: scaleY(0); }
+.nc-yawn-eyes, .nc-heart, .nc-hearts, .nc-zzz { opacity: 0; }
+.nc-heart { transform-origin: 100px 156px; }
 
 @keyframes nc-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.025, 1.035); } }
 @keyframes nc-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(7deg); } }
@@ -31,20 +49,38 @@
 .nanacat[data-pose="walk"] .nc-all { animation: nc-waddle 0.6s linear infinite; animation-delay: var(--t); }
 .nanacat[data-pose="walk"] .nc-leg-l { animation: nc-step 0.6s ease-in-out infinite; animation-delay: var(--t); }
 .nanacat[data-pose="walk"] .nc-leg-r { animation: nc-step 0.6s ease-in-out infinite; animation-delay: calc(var(--t) - 0.3s); }
+.nanacat[data-pose="walk"] .nc-arm-l { animation: nc-arm-swing 0.6s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="walk"] .nc-arm-r { animation: nc-arm-swing 0.6s ease-in-out infinite; animation-delay: calc(var(--t) - 0.3s); }
 .nanacat[data-pose="walk"] .nc-tail { animation: nc-tail-walk 0.6s ease-in-out infinite; animation-delay: var(--t); }
 .nanacat[data-pose="walk"] .nc-head { animation: nc-head-walk 0.6s ease-in-out infinite; animation-delay: var(--t); }
 @keyframes nc-waddle { 0%, 100% { transform: rotate(-3.5deg) translateY(0); } 25% { transform: rotate(0) translateY(-5px); } 50% { transform: rotate(3.5deg) translateY(0); } 75% { transform: rotate(0) translateY(-5px); } }
 @keyframes nc-step { 0%, 50%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-10px) rotate(-8deg); } }
+@keyframes nc-arm-swing { 0%, 100% { transform: rotate(16deg); } 50% { transform: rotate(-16deg); } }
 @keyframes nc-tail-walk { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(14deg); } }
 @keyframes nc-head-walk { 0%, 100% { transform: rotate(2deg); } 50% { transform: rotate(-2deg); } }
+
+/* ----- 달리기: 몸을 앞으로 기울이고 다다다 (한 바퀴 0.36초) ----- */
+.nanacat[data-pose="run"] .nc-all { animation: nc-run 0.36s linear infinite; animation-delay: var(--t); }
+.nanacat[data-pose="run"] .nc-leg-l { animation: nc-stride 0.36s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="run"] .nc-leg-r { animation: nc-stride 0.36s ease-in-out infinite; animation-delay: calc(var(--t) - 0.18s); }
+.nanacat[data-pose="run"] .nc-arm-l { animation: nc-arm-run 0.36s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="run"] .nc-arm-r { animation: nc-arm-run 0.36s ease-in-out infinite; animation-delay: calc(var(--t) - 0.18s); }
+.nanacat[data-pose="run"] .nc-tail { animation: nc-tail-run 0.36s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="run"] .nc-ear-l { animation: none; transform: rotate(-10deg); }
+.nanacat[data-pose="run"] .nc-ear-r { animation: none; transform: rotate(10deg); }
+@keyframes nc-run { 0%, 100% { transform: rotate(7deg) translateY(0); } 50% { transform: rotate(7deg) translateY(-7px); } }
+@keyframes nc-stride { 0%, 100% { transform: translateY(0) rotate(-14deg); } 50% { transform: translateY(-12px) rotate(14deg); } }
+@keyframes nc-arm-run { 0%, 100% { transform: rotate(42deg); } 50% { transform: rotate(-42deg); } }
+@keyframes nc-tail-run { 0%, 100% { transform: rotate(-24deg); } 50% { transform: rotate(-32deg); } }
 
 /* ----- 점프: 웅크렸다가 → 쏘옥 → 착지 (한 번 0.9초) ----- */
 .nanacat[data-pose="jump"] .nc-all { animation: nc-jump 0.9s ease-out forwards; animation-delay: var(--t); }
 .nanacat[data-pose="jump"] .nc-shadow { animation: nc-shadow-jump 0.9s ease-out forwards; animation-delay: var(--t); }
 .nanacat[data-pose="jump"] .nc-tail { animation: nc-tail-jump 0.9s ease-out forwards; animation-delay: var(--t); }
-.nanacat[data-pose="jump"] .nc-eye { animation: nc-fade-out 0.9s steps(1, end) forwards; animation-delay: var(--t); }
-.nanacat[data-pose="jump"] .nc-eye-happy { animation: nc-jump-happy 0.9s steps(1, end) forwards; animation-delay: var(--t); }
+.nanacat[data-pose="jump"] .nc-arm-l { animation: nc-arm-jump-l 0.9s ease-out forwards; animation-delay: var(--t); }
+.nanacat[data-pose="jump"] .nc-arm-r { animation: nc-arm-jump-r 0.9s ease-out forwards; animation-delay: var(--t); }
 .nanacat[data-pose="jump"] .nc-leg-l, .nanacat[data-pose="jump"] .nc-leg-r { animation: nc-legs-jump 0.9s ease-out forwards; animation-delay: var(--t); }
+.nanacat[data-pose="jump"] .nc-mouth-open { animation: nc-mouth-jump 0.9s ease-out forwards; animation-delay: var(--t); }
 @keyframes nc-jump {
   0% { transform: translateY(0) scale(1, 1); }
   16% { transform: translateY(0) scale(1.1, 0.86); }
@@ -56,18 +92,67 @@
 }
 @keyframes nc-shadow-jump { 0%, 16%, 82%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.6); opacity: 0.6; } }
 @keyframes nc-tail-jump { 0%, 16% { transform: rotate(0); } 45%, 60% { transform: rotate(-26deg); } 85%, 100% { transform: rotate(6deg); } }
-@keyframes nc-legs-jump { 0%, 16%, 82%, 100% { transform: translateY(0); } 40%, 60% { transform: translateY(6px) rotate(0); } }
-@keyframes nc-fade-out { 0% { opacity: 1; } 30% { opacity: 0; } 85% { opacity: 1; } }
-@keyframes nc-jump-happy { 0% { opacity: 0; } 30% { opacity: 1; } 85% { opacity: 0; } }
+@keyframes nc-arm-jump-l { 0%, 16%, 82%, 100% { transform: rotate(0); } 40%, 62% { transform: rotate(125deg); } }
+@keyframes nc-arm-jump-r { 0%, 16%, 82%, 100% { transform: rotate(0); } 40%, 62% { transform: rotate(-125deg); } }
+@keyframes nc-legs-jump { 0%, 16%, 82%, 100% { transform: translateY(0); } 40%, 60% { transform: translateY(6px); } }
+@keyframes nc-mouth-jump { 0%, 25%, 80%, 100% { opacity: 0; transform: scaleY(0); } 40%, 62% { opacity: 1; transform: scaleY(0.75); } }
 
-/* ----- 하품: 입을 크게 아암~ (한 번 2.6초) ----- */
+/* ----- 손 흔들기: 안녕! (한 번 1.7초) ----- */
+.nanacat[data-pose="wave"] .nc-arm-r { animation: nc-wave 1.7s ease-in-out forwards; animation-delay: var(--t); }
+.nanacat[data-pose="wave"] .nc-head { animation: nc-head-tilt 1.7s ease-in-out forwards; animation-delay: var(--t); }
+.nanacat[data-pose="wave"] .nc-mouth-open { opacity: 1; transform: scaleY(0.5); }
+@keyframes nc-wave {
+  0% { transform: rotate(0); }
+  12% { transform: rotate(-125deg); }
+  28% { transform: rotate(-105deg); }
+  44% { transform: rotate(-138deg); }
+  60% { transform: rotate(-105deg); }
+  76% { transform: rotate(-138deg); }
+  90% { transform: rotate(-125deg); }
+  100% { transform: rotate(0); }
+}
+@keyframes nc-head-tilt { 0%, 100% { transform: rotate(0); } 15%, 85% { transform: rotate(-4deg); } }
+
+/* ----- 신남: 윙크하고 폴짝폴짝 꼬리 휙휙 (계속 반복) ----- */
+.nanacat[data-pose="excited"] .nc-all { animation: nc-bounce 0.6s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="excited"] .nc-tail { animation: nc-wag 0.3s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="excited"] .nc-arm-l { animation: nc-arm-cheer-l 0.6s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="excited"] .nc-arm-r { animation: nc-arm-cheer-r 0.6s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="excited"] .nc-ear-l { animation: nc-ear-perk 0.6s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="excited"] .nc-mouth-open { opacity: 1; transform: scaleY(0.6); }
+@keyframes nc-bounce { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-6px) scale(0.99, 1.02); } }
+@keyframes nc-wag { 0%, 100% { transform: rotate(-30deg); } 50% { transform: rotate(30deg); } }
+@keyframes nc-arm-cheer-l { 0%, 100% { transform: rotate(100deg); } 50% { transform: rotate(125deg); } }
+@keyframes nc-arm-cheer-r { 0%, 100% { transform: rotate(-125deg); } 50% { transform: rotate(-100deg); } }
+@keyframes nc-ear-perk { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
+
+/* ----- 슬픔: 고개 푹, 귀 축, 꼬리 힘없이 (계속 반복) ----- */
+.nanacat[data-pose="sad"] .nc-head { animation: nc-sad-head 3s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="sad"] .nc-ear-l { animation: none; transform: rotate(-16deg); }
+.nanacat[data-pose="sad"] .nc-ear-r { animation: none; transform: rotate(16deg); }
+.nanacat[data-pose="sad"] .nc-tail { animation: none; transform: rotate(34deg); }
+.nanacat[data-pose="sad"] .nc-body { animation: nc-breathe 4.4s ease-in-out infinite; animation-delay: var(--t); }
+@keyframes nc-sad-head { 0%, 100% { transform: translateY(7px) rotate(4deg); } 50% { transform: translateY(9px) rotate(5deg); } }
+
+/* ----- 하트 안기: 하트를 꼬옥, 하트가 둥실 (계속 반복) ----- */
+.nanacat[data-pose="heart"] .nc-heart { opacity: 1; animation: nc-heart-pulse 1s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="heart"] .nc-arm { opacity: 0; }
+.nanacat[data-pose="heart"] .nc-head { animation: nc-head-sway 2s ease-in-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="heart"] .nc-hearts { opacity: 1; }
+.nanacat[data-pose="heart"] .nc-hearts use { animation: nc-heart-float 2.4s ease-out infinite; animation-delay: var(--t); }
+.nanacat[data-pose="heart"] .nc-fh2 { animation-delay: calc(var(--t) + 0.8s); }
+.nanacat[data-pose="heart"] .nc-fh3 { animation-delay: calc(var(--t) + 1.6s); }
+@keyframes nc-heart-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+@keyframes nc-head-sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(3deg); } }
+@keyframes nc-heart-float { 0% { opacity: 0; transform: translateY(14px); } 25% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-14px); } }
+
+/* ----- 하품: 눈을 감고 입을 크게 아암~ (한 번 2.6초) ----- */
 .nanacat[data-pose="yawn"] .nc-head { animation: nc-yawn-head 2.6s ease-in-out forwards; animation-delay: var(--t); }
 .nanacat[data-pose="yawn"] .nc-mouth-open { animation: nc-yawn-mouth 2.6s ease-in-out forwards; animation-delay: var(--t); }
-.nanacat[data-pose="yawn"] .nc-smile { animation: nc-yawn-open-hide 2.6s steps(1, end) forwards; animation-delay: var(--t); }
-.nanacat[data-pose="yawn"] .nc-eye { animation: nc-yawn-open-hide 2.6s steps(1, end) forwards; animation-delay: var(--t); }
-.nanacat[data-pose="yawn"] .nc-eye-closed { animation: nc-yawn-closed 2.6s steps(1, end) forwards; animation-delay: var(--t); }
+.nanacat[data-pose="yawn"] .nc-eyes-open { animation: nc-yawn-open-hide 2.6s steps(1, end) forwards; animation-delay: var(--t); }
+.nanacat[data-pose="yawn"] .nc-yawn-eyes { animation: nc-yawn-closed 2.6s steps(1, end) forwards; animation-delay: var(--t); }
 .nanacat[data-pose="yawn"] .nc-body { animation: nc-yawn-body 2.6s ease-in-out forwards; animation-delay: var(--t); }
-.nanacat[data-pose="yawn"] .nc-whisk { animation: nc-yawn-whisk 2.6s ease-in-out forwards; animation-delay: var(--t); transform-origin: 100px 104px; }
+.nanacat[data-pose="yawn"] .nc-whisk { animation: nc-yawn-whisk 2.6s ease-in-out forwards; animation-delay: var(--t); }
 @keyframes nc-yawn-head { 0%, 100% { transform: rotate(0) translateY(0); } 28%, 60% { transform: rotate(-5deg) translateY(-5px); } }
 @keyframes nc-yawn-mouth { 0%, 14%, 82%, 100% { transform: scaleY(0); opacity: 0; } 30%, 58% { transform: scaleY(1); opacity: 1; } }
 @keyframes nc-yawn-open-hide { 0%, 24% { opacity: 1; } 25%, 62% { opacity: 0; } 63%, 100% { opacity: 1; } }
@@ -75,53 +160,17 @@
 @keyframes nc-yawn-body { 0%, 100% { transform: scale(1, 1); } 30%, 60% { transform: scale(1.04, 1.06); } }
 @keyframes nc-yawn-whisk { 0%, 100% { transform: scaleY(1); } 30%, 60% { transform: scaleY(1.18); } }
 
-/* ----- 꼬리 흔들기(신나요!): 꼬리 휙휙 + 웃는 눈 ----- */
-.nanacat[data-pose="wag"] .nc-tail { animation: nc-wag 0.3s ease-in-out infinite; animation-delay: var(--t); }
-.nanacat[data-pose="wag"] .nc-all { animation: nc-happy-bounce 0.6s ease-in-out infinite; animation-delay: var(--t); }
-.nanacat[data-pose="wag"] .nc-eye { opacity: 0; animation: none; }
-.nanacat[data-pose="wag"] .nc-eye-happy { opacity: 1; }
-.nanacat[data-pose="wag"] .nc-smile { opacity: 0; }
-.nanacat[data-pose="wag"] .nc-mouth-open { opacity: 1; transform: scaleY(0.55); }
-.nanacat[data-pose="wag"] .nc-ear-l { animation: nc-ear-perk 0.6s ease-in-out infinite; animation-delay: var(--t); }
-@keyframes nc-wag { 0%, 100% { transform: rotate(-30deg); } 50% { transform: rotate(30deg); } }
-@keyframes nc-happy-bounce { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-5px) scale(0.99, 1.02); } }
-@keyframes nc-ear-perk { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
-
-/* ----- 손 흔들기: 안녕! (한 번 1.7초) ----- */
-.nanacat[data-pose="wave"] .nc-wave { animation: nc-wave 1.7s ease-in-out forwards; animation-delay: var(--t); }
-.nanacat[data-pose="wave"] .nc-eye { opacity: 0; animation: none; }
-.nanacat[data-pose="wave"] .nc-eye-happy { opacity: 1; }
-.nanacat[data-pose="wave"] .nc-smile { opacity: 0; }
-.nanacat[data-pose="wave"] .nc-mouth-open { opacity: 1; transform: scaleY(0.5); }
-.nanacat[data-pose="wave"] .nc-head { animation: nc-head-tilt 1.7s ease-in-out forwards; animation-delay: var(--t); }
-@keyframes nc-wave {
-  0% { opacity: 0; transform: rotate(0); }
-  10% { opacity: 1; transform: rotate(120deg); }
-  25% { opacity: 1; transform: rotate(98deg); }
-  40% { opacity: 1; transform: rotate(130deg); }
-  55% { opacity: 1; transform: rotate(98deg); }
-  70% { opacity: 1; transform: rotate(130deg); }
-  90% { opacity: 1; transform: rotate(115deg); }
-  100% { opacity: 0; transform: rotate(0); }
-}
-@keyframes nc-head-tilt { 0%, 100% { transform: rotate(0); } 15%, 85% { transform: rotate(-4deg); } }
-
 /* ----- 깜짝 놀람: 폴짝! 눈이 동글, 입이 오 (한 번 0.9초) ----- */
 .nanacat[data-pose="surprise"] .nc-all { animation: nc-surprise 0.9s ease-out forwards; animation-delay: var(--t); }
-.nanacat[data-pose="surprise"] .nc-eye { animation: nc-surprise-eye 0.9s ease-out forwards; animation-delay: var(--t); }
-.nanacat[data-pose="surprise"] .nc-mouth-open { animation: nc-surprise-mouth 0.9s ease-out forwards; animation-delay: var(--t); }
-.nanacat[data-pose="surprise"] .nc-smile { opacity: 0; }
 .nanacat[data-pose="surprise"] .nc-tail { animation: nc-tail-puff 0.9s ease-out forwards; animation-delay: var(--t); }
-.nanacat[data-pose="surprise"] .nc-whisk { animation: nc-whisk-pop 0.9s ease-out forwards; animation-delay: var(--t); transform-origin: 100px 104px; }
+.nanacat[data-pose="surprise"] .nc-whisk { animation: nc-whisk-pop 0.9s ease-out forwards; animation-delay: var(--t); }
+.nanacat[data-pose="surprise"] .nc-ear-l { animation: none; transform: rotate(-6deg); }
+.nanacat[data-pose="surprise"] .nc-ear-r { animation: none; transform: rotate(6deg); }
 @keyframes nc-surprise { 0% { transform: translateY(0) scale(1, 1); } 15% { transform: translateY(-20px) scale(0.95, 1.08); } 45% { transform: translateY(-6px) scale(1, 1); } 100% { transform: translateY(0) scale(1, 1); } }
-@keyframes nc-surprise-eye { 0% { transform: scale(1); } 15%, 100% { transform: scale(1.3); } }
-@keyframes nc-surprise-mouth { 0% { transform: scaleY(0); opacity: 0; } 15%, 100% { transform: scaleY(0.5); opacity: 1; } }
 @keyframes nc-tail-puff { 0% { transform: rotate(0) scale(1); } 15%, 100% { transform: rotate(-12deg) scale(1.1); } }
 @keyframes nc-whisk-pop { 0% { transform: scale(1); } 15%, 100% { transform: scale(1.1, 1.08); } }
 
 /* ----- 쿨쿨 자기: 눈 감고, 숨 천천히, z 둥실 ----- */
-.nanacat[data-pose="sleep"] .nc-eye { opacity: 0; animation: none; }
-.nanacat[data-pose="sleep"] .nc-eye-closed { opacity: 1; }
 .nanacat[data-pose="sleep"] .nc-head { transform: rotate(6deg) translateY(5px); }
 .nanacat[data-pose="sleep"] .nc-body { animation: nc-breathe 4.4s ease-in-out infinite; animation-delay: var(--t); }
 .nanacat[data-pose="sleep"] .nc-tail { animation: nc-sway 5s ease-in-out infinite; animation-delay: var(--t); }
