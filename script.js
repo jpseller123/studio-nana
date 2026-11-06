@@ -97,7 +97,7 @@ if (!reduceMotion) {
   }, { passive: true });
 }
 
-// --- 고양이 랜덤 동작: 마우튜를 올리거나 누르면 ---
+// --- 고양이 랜덤 동작: 마우스를 올리거나 누르면 ---
 // 동작을 더 넣고 싶으면 이름을 여기에 추가하고, style.css 에 move-이름 · cat-이름 을 만드세요
 const CAT_MOVES = ["jump", "wag", "spin", "squish", "shake", "hop"];
 const cat = document.getElementById("cat");

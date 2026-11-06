@@ -29,6 +29,10 @@
   --space-4: 48px;
   --space-5: 96px;
   --shadow: 0 10px 24px rgba(34, 34, 34, 0.14);
+
+  /* 마우스 포인터: 작은 나나캣 (48px 그림, 가운데가 클릭 위치). 안 불러와지면 기본 포인터 */
+  --cursor: url("images/cursor-nanacat.png") 24 24, auto;
+  --cursor-link: url("images/cursor-nanacat.png") 24 24, pointer;
   --header-h: 68px;
   --speed: 0.25s;
 }
@@ -44,12 +48,14 @@ body {
   font-weight: 500;
   line-height: 1.85;
   overflow-x: hidden;
+  cursor: var(--cursor);
   word-break: keep-all;                   /* 글자가 단어 중간에서 끊기지 않게 */
   overflow-wrap: break-word;
 }
 @media (max-width: 700px) { :root { --size-body: 16px; } }  /* 휴대폰은 한 단계 작게 */
 
-a { color: inherit; }
+a { color: inherit; cursor: var(--cursor-link); }
+button, [role="button"] { cursor: var(--cursor-link); }
 img { max-width: 100%; display: block; }
 h1, h2, h3 { font-family: var(--font-title); font-weight: 400; line-height: 1.25; margin: 0; }
 h1 { font-size: var(--size-h1); }
@@ -88,7 +94,7 @@ p { margin: 0; }
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 56px; padding: 12px 36px; border: 0; border-radius: var(--radius-pill);
   background: var(--coral); color: var(--text); font: inherit; font-weight: 700; font-size: 1.1rem;
-  text-decoration: none; cursor: pointer; box-shadow: var(--shadow);
+  text-decoration: none; cursor: var(--cursor-link); box-shadow: var(--shadow);
   transition: transform var(--speed), background var(--speed);
 }
 .btn:hover, .btn:focus-visible { transform: scale(1.06); background: var(--coral-deep); }
@@ -101,7 +107,7 @@ p { margin: 0; }
 .nav ul { display: flex; gap: var(--space-1); list-style: none; margin: 0; padding: 0; }
 .nav a { display: block; padding: 6px 16px; border-radius: var(--radius-pill); font-size: 0.95rem; font-weight: 700; text-decoration: none; transition: background var(--speed); }
 .nav a:hover, .nav a:focus-visible { background: var(--yellow); }
-.menu-btn { display: none; width: 48px; height: 48px; border: 2px solid var(--text); border-radius: 50%; background: var(--yellow); font-size: 1.3rem; cursor: pointer; }
+.menu-btn { display: none; width: 48px; height: 48px; border: 2px solid var(--text); border-radius: 50%; background: var(--yellow); font-size: 1.3rem; cursor: var(--cursor-link); }
 @media (max-width: 760px) {
   .menu-btn { display: block; }
   .nav { display: none; position: absolute; top: var(--header-h); left: 0; right: 0; background: var(--white); padding: var(--space-2) var(--space-3) var(--space-3); border-bottom: 2px solid var(--text); }
@@ -122,7 +128,7 @@ p { margin: 0; }
 .hero h1 .hl-green { text-shadow: 0 0 0 transparent; }
 .hero-sub { font-size: 1.25rem; max-width: 30ch; margin-bottom: var(--space-4); }
 .hero-art { display: grid; place-items: center; }
-.cat { width: min(100%, 520px); cursor: pointer; animation: bob 4.5s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
+.cat { width: min(100%, 520px); cursor: var(--cursor-link); animation: bob 4.5s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
 .cat img { width: 100%; height: auto; filter: drop-shadow(0 18px 18px rgba(34, 34, 34, 0.2)); transform-origin: 50% 92%; }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
 
@@ -199,7 +205,7 @@ p { margin: 0; }
 .footer-title { font-family: var(--font-title); font-size: 1.6rem; margin-bottom: 4px; }
 .email-row { display: flex; align-items: center; gap: var(--space-1); flex-wrap: wrap; font-weight: 700; }
 .email-text { background: var(--white); padding: 4px 16px; border-radius: var(--radius-pill); user-select: all; }
-.copy-btn { border: 2px solid var(--text); background: transparent; border-radius: var(--radius-pill); padding: 2px 16px; font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background var(--speed); }
+.copy-btn { border: 2px solid var(--text); background: transparent; border-radius: var(--radius-pill); padding: 2px 16px; font: inherit; font-size: 0.9rem; font-weight: 700; cursor: var(--cursor-link); transition: background var(--speed); }
 .copy-btn:hover, .copy-btn:focus-visible { background: var(--coral); }
 .sns { display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--coral); transition: transform var(--speed); }
 .sns:hover, .sns:focus-visible { transform: scale(1.12) rotate(8deg); }
@@ -210,7 +216,7 @@ p { margin: 0; }
 /* ===== 말풍선 안내 · 맨 위로 ===== */
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 30px); background: var(--text); color: var(--white); padding: 12px 24px; border-radius: var(--radius-pill); opacity: 0; pointer-events: none; transition: opacity var(--speed), transform var(--speed); z-index: 90; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
-.to-top { position: fixed; right: var(--space-3); bottom: var(--space-3); width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--coral); color: var(--text); font-size: 1.4rem; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); opacity: 0; visibility: hidden; transition: opacity var(--speed), visibility var(--speed); }
+.to-top { position: fixed; right: var(--space-3); bottom: var(--space-3); width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--coral); color: var(--text); font-size: 1.4rem; font-weight: 700; cursor: var(--cursor-link); box-shadow: var(--shadow); opacity: 0; visibility: hidden; transition: opacity var(--speed), visibility var(--speed); }
 .to-top.show { opacity: 1; visibility: visible; }
 
 /* ===== 튜크롤하면 떠오르기 ===== */
