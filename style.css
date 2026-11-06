@@ -19,7 +19,7 @@
   --size-h1: clamp(2.6rem, 6.5vw, 5rem);
   --size-h2: clamp(2rem, 4.6vw, 3.2rem);
   --size-label: 0.85rem;
-  --size-big-number: clamp(7rem, 26vw, 17rem);
+  --size-big-number: clamp(3.4rem, 11.5vw, 7.6rem);   /* 날짜 2026.11.06 이 한 줄에 들어오는 크기 */
 
   --radius: 28px;
   --radius-pill: 999px;
@@ -157,7 +157,12 @@ p { margin: 0; }
 /* ===== 3. 큰 숫자 (연한 회색) ===== */
 .number { background: var(--gray); }
 .number-row { display: flex; align-items: center; justify-content: center; gap: var(--space-4); flex-wrap: wrap; }
-.big-number { font-family: var(--font-title); font-size: var(--size-big-number); line-height: 1; color: var(--green); }
+.big-number { display: flex; justify-content: center; font-family: var(--font-title); font-size: var(--size-big-number); line-height: 1; color: var(--green); }
+.big-number .digit { display: inline-block; width: 0.62em; text-align: center; }   /* 숫자 칸 폭을 고정해서 돌아가는 동안 흔들리지 않게 */
+.big-number .dot { display: inline-block; width: 0.3em; text-align: center; }
+.big-number .digit.rolling { opacity: 0.55; }
+.big-number .digit.pop { animation: digit-pop 0.4s ease-out; }
+@keyframes digit-pop { 0% { transform: scale(1.35); } 60% { transform: scale(0.94); } 100% { transform: scale(1); } }
 .number-text { max-width: 34ch; flex: 1 1 280px; }
 .number-text h2 { margin-bottom: var(--space-2); }
 .circle-menu { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; margin-top: var(--space-4); }

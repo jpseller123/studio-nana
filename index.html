@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
   <link rel="stylesheet" href="nanacat.css?v=2">
   <script>document.documentElement.classList.add("js");</script>
 </head>
@@ -58,10 +58,11 @@
     <section class="section number" id="about">
       <div class="container">
         <div class="number-row reveal">
-          <div class="big-number" aria-label="2026">2026</div>
+          <!-- 큰 숫자: script.js 가 슬롯머신처럼 돌리다가 오늘 날짜(예: 2026.11.06)로 멈춰요. 스크립트가 없으면 '2026'만 보여요 -->
+          <div class="big-number" id="bigDate" role="img" aria-label="2026">2026</div>
           <div class="number-text">
             <span class="label">About Nana</span>
-            <h2>첫인사를 드리는 <span class="hl-green">해</span></h2>
+            <h2>첫인사를 드리는 <span class="hl-green">오늘</span></h2>
             <p>스튜디오 나나가 새 홈페이지로 처음 인사해요. 아이와 가족이 좋아하는 캐릭터를 만들고, 브랜드와 함께하는 일도 기다리고 있어요.</p>
           </div>
         </div>
@@ -141,7 +142,7 @@
   <button class="to-top" id="toTop" type="button" aria-label="맨 위로 가기">↑</button>
 
   <script src="nanacat.js?v=2"></script>
-  <script src="script.js?v=14"></script>
+  <script src="script.js?v=15"></script>
 </body>
 </html>
 

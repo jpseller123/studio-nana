@@ -225,6 +225,59 @@ if (canFollow) {
   document.documentElement.addEventListener("mouseenter", () => { if (lastX !== null) follower.classList.add("show"); });
 }
 
+// --- 큰 숫자: 슬롯머신처럼 랜덤으로 돌다가 오늘 날짜로 멈춰요 (예: 2026.11.06) ---
+// 보는 사람의 컴퓨터 날짜를 써요. 화면에 보일 때 한 번 돌아요. 돌아가는 시간을 바꾸려면 아래 두 숫자(ms)를 고치세요.
+const bigDate = document.getElementById("bigDate");
+if (bigDate) {
+  const ROLL_FIRST_STOP = 900;   // 첫 숫자가 멈추는 시간
+  const ROLL_STEP = 260;         // 다음 숫자가 멈추기까지 더 걸리는 시간
+  const today = new Date();
+  const two = (n) => String(n).padStart(2, "0");
+  const finalText = `${today.getFullYear()}.${two(today.getMonth() + 1)}.${two(today.getDate())}`;
+  bigDate.setAttribute("aria-label", `오늘 날짜 ${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`);
+  bigDate.textContent = "";
+  const cells = [...finalText].map((ch) => {
+    const cell = document.createElement("span");
+    cell.setAttribute("aria-hidden", "true");
+    cell.className = /\d/.test(ch) ? "digit" : "dot";
+    cell.textContent = ch;
+    bigDate.append(cell);
+    return cell;
+  });
+  const digitCells = cells.filter((cell) => cell.classList.contains("digit"));
+
+  function rollDate() {
+    if (reduceMotion) return;                                     // '움직임 줄이기'면 바로 날짜를 보여 줘요
+    const startedAt = performance.now();
+    const settled = new Set();
+    const timer = setInterval(() => {
+      const elapsed = performance.now() - startedAt;
+      digitCells.forEach((cell, i) => {
+        if (settled.has(i)) return;
+        if (elapsed >= ROLL_FIRST_STOP + i * ROLL_STEP) {         // 왼쪽 숫자부터 차례로 멈춰요
+          settled.add(i);
+          cell.textContent = finalText.replace(/\./g, "")[i];
+          cell.classList.remove("rolling");
+          cell.classList.add("pop");
+        } else {
+          cell.textContent = Math.floor(Math.random() * 10);
+          cell.classList.add("rolling");
+        }
+      });
+      if (settled.size === digitCells.length) clearInterval(timer);
+    }, 70);
+  }
+
+  if ("IntersectionObserver" in window && !reduceMotion) {
+    const dateObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) { dateObserver.disconnect(); rollDate(); }
+    }, { threshold: 0.6 });
+    dateObserver.observe(bigDate);
+  } else {
+    rollDate();
+  }
+}
+
 // --- 맨 위로 가기 ---
 const toTop = document.getElementById("toTop");
 window.addEventListener("scroll", () => toTop.classList.toggle("show", window.scrollY > 500), { passive: true });
