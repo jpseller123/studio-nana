@@ -108,24 +108,23 @@ function restartPose(el, pose) {
   NanaCat.set(el, pose);
 }
 
-// --- 1) 첫 화면의 나나캣: 마우스를 올리거나 누르면 랜덤 동작, 가만히 있어도 가끔 움직여요 ---
+// --- 1) 첫 화면의 나나캣 (처음 캐릭터 사진): 마우스를 올리거나 누르면 랜덤 동작, 가만히 있어도 가끔 움직여요 ---
+// 동작을 더 넣고 싶으면 이름을 여기에 추가하고, style.css 에 move-이름 · cat-이름 을 만드세요
 const cat = document.getElementById("cat");
-const HERO_MOVES = { jump: 900, excited: 1900, wave: 1800, yawn: 2700, surprise: 1000, walk: 2400, heart: 2400, sad: 2200 };  // 동작: 걸리는 시간(ms)
-let heroCat = null;
+const catImg = cat.querySelector("img");
+const HERO_MOVES = ["jump", "wag", "spin", "squish", "shake", "hop"];
 let heroBusy = false;
 let heroLast = "";
-if (hasNanaCat) {
-  heroCat = NanaCat.create("stand");
-  const fallbackImg = cat.querySelector("img");   // 그림이 안 불러와질 때를 위해 원래 사진은 HTML에 남겨 둠
-  if (fallbackImg) fallbackImg.replaceWith(heroCat);
-}
 function playHeroMove() {
-  if (!heroCat || heroBusy || reduceMotion) return;                // 움직이는 중이거나 '움직임 줄이기'면 쉬기
-  const names = Object.keys(HERO_MOVES).filter((n) => n !== heroLast);  // 같은 동작이 연달아 나오지 않게
-  heroLast = names[Math.floor(Math.random() * names.length)];
+  if (heroBusy || reduceMotion) return;                           // 움직이는 중이거나 '움직임 줄이기'면 쉬기
+  const choices = HERO_MOVES.filter((m) => m !== heroLast);       // 같은 동작이 연달아 나오지 않게
+  heroLast = choices[Math.floor(Math.random() * choices.length)];
   heroBusy = true;
-  restartPose(heroCat, heroLast);
-  setTimeout(() => { NanaCat.set(heroCat, "stand"); heroBusy = false; }, HERO_MOVES[heroLast]);
+  catImg.classList.add("move-" + heroLast);
+  catImg.addEventListener("animationend", () => {
+    catImg.classList.remove("move-" + heroLast);
+    heroBusy = false;
+  }, { once: true });
 }
 cat.addEventListener("mouseenter", playHeroMove);
 cat.addEventListener("click", playHeroMove);          // 휴대폰은 누르면 움직여요
@@ -138,8 +137,7 @@ function scheduleHeroIdle() {                         // 7~13초마다 혼자서
     scheduleHeroIdle();
   }, 7000 + Math.random() * 6000);
 }
-if (heroCat && !reduceMotion) scheduleHeroIdle();
-
+if (!reduceMotion) scheduleHeroIdle();
 // --- 2) 마우스 포인터 나나캣: 컴퓨터 마우스에서만, 움직임 줄이기 설정이 아닐 때만 ---
 //   움직이면 걷기(빠르게 움직이면 달리기) · 멈추면 서 있기 · 링크 위에서 신남 · 클릭하면 점프 · 4초 가만히 있으면 하품 후 쿨쿨
 const canFollow = hasNanaCat && !reduceMotion && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
