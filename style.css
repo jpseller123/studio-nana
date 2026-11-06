@@ -523,6 +523,7 @@ main { overflow-x: clip; }                     /* 기울인 사진 때문에 옆
   background: var(--white);
   border: var(--border);
   border-radius: var(--radius);
+  overflow: hidden;                            /* 색 띠가 모서리 테두리를 덮지 않게 */
   box-shadow: var(--shadow);
   transition: transform var(--speed) var(--bounce), box-shadow var(--speed);
 }
