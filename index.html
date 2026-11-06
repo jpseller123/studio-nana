@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="nanacat.css?v=1">
   <script>document.documentElement.classList.add("js");</script>
 </head>
 <body>
@@ -45,7 +46,7 @@
           <a class="btn js-form-btn" href="#contact">협업 문의하기</a>
         </div>
         <div class="hero-art reveal">
-          <!-- 마우스를 올리거나 누르면 고양이가 랜덤으로 움직여요 (script.js 의 CAT_MOVES) -->
+          <!-- 나나캣: 마우스를 올리거나 누르면 랜덤으로 움직여요 (script.js 의 HERO_MOVES). script.js 가 그림(nanacat.js)으로 바꿔 줘요 -->
           <div class="cat" id="cat" role="button" tabindex="0" aria-label="나나캣를 움직여 보세요">
             <img src="images/nana-cat.png" alt="복숭아빛 꼬리를 가진 귀여운 나나캣" width="520" height="520" draggable="false">
           </div>
@@ -139,7 +140,8 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <button class="to-top" id="toTop" type="button" aria-label="맨 위로 가기">↑</button>
 
-  <script src="script.js?v=11"></script>
+  <script src="nanacat.js?v=1"></script>
+  <script src="script.js?v=12"></script>
 </body>
 </html>
 

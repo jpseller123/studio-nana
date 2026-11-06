@@ -97,29 +97,131 @@ if (!reduceMotion) {
   }, { passive: true });
 }
 
-// --- 고양이 랜덤 동작: 마우스를 올리거나 누르면 ---
-// 동작을 더 넣고 싶으면 이름을 여기에 추가하고, style.css 에 move-이름 · cat-이름 을 만드세요
-const CAT_MOVES = ["jump", "wag", "spin", "squish", "shake", "hop"];
-const cat = document.getElementById("cat");
-const catImg = cat.querySelector("img");
-let catBusy = false;
-let lastMove = "";
-function playCatMove() {
-  if (catBusy || reduceMotion) return;           // 움직이는 중이거나 '움직임 줄이기'면 쉬기
-  const choices = CAT_MOVES.filter((m) => m !== lastMove);  // 같은 동작이 연달아 나오지 않게
-  lastMove = choices[Math.floor(Math.random() * choices.length)];
-  catBusy = true;
-  catImg.classList.add("move-" + lastMove);
-  catImg.addEventListener("animationend", () => {
-    catImg.classList.remove("move-" + lastMove);
-    catBusy = false;
-  }, { once: true });
+// ===== 나나캣 (nanacat.js 로 그린 캐릭터, 동작은 nanacat.css) =====
+// 동작 이름: stand(서 있기) · walk(걷기) · yawn(하품) · jump(점프) · wag(꼬리 흔들기) · wave(손 흔들기) · surprise(깜짝) · sleep(쿨쿨)
+const hasNanaCat = Boolean(window.NanaCat);
+
+// 같은 동작을 처음부터 다시 보여 주기
+function restartPose(el, pose) {
+  el.dataset.pose = "stand";
+  void el.getBoundingClientRect();
+  el.dataset.pose = pose;
 }
-cat.addEventListener("mouseenter", playCatMove);
-cat.addEventListener("click", playCatMove);      // 휴대폰은 누르면 움직여요
-cat.addEventListener("keydown", (event) => {     // 키보드: Enter · 튜페이튜
-  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); playCatMove(); }
+
+// --- 1) 첫 화면의 나나캣: 마우스를 올리거나 누르면 랜덤 동작, 가만히 있어도 가끔 움직여요 ---
+const cat = document.getElementById("cat");
+const HERO_MOVES = { jump: 900, wag: 1900, wave: 1800, yawn: 2700, surprise: 1000, walk: 2400 };  // 동작: 걸리는 시간(ms)
+let heroCat = null;
+let heroBusy = false;
+let heroLast = "";
+if (hasNanaCat) {
+  heroCat = NanaCat.create("stand");
+  const fallbackImg = cat.querySelector("img");   // 그림이 안 불러와질 때를 위해 원래 사진은 HTML에 남겨 둠
+  if (fallbackImg) fallbackImg.replaceWith(heroCat);
+}
+function playHeroMove() {
+  if (!heroCat || heroBusy || reduceMotion) return;                // 움직이는 중이거나 '움직임 줄이기'면 쉬기
+  const names = Object.keys(HERO_MOVES).filter((n) => n !== heroLast);  // 같은 동작이 연달아 나오지 않게
+  heroLast = names[Math.floor(Math.random() * names.length)];
+  heroBusy = true;
+  restartPose(heroCat, heroLast);
+  setTimeout(() => { heroCat.dataset.pose = "stand"; heroBusy = false; }, HERO_MOVES[heroLast]);
+}
+cat.addEventListener("mouseenter", playHeroMove);
+cat.addEventListener("click", playHeroMove);          // 휴대폰은 누르면 움직여요
+cat.addEventListener("keydown", (event) => {          // 키보드: Enter · 스페이스
+  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); playHeroMove(); }
 });
+function scheduleHeroIdle() {                         // 7~13초마다 혼자서도 한 번씩 움직여요
+  setTimeout(() => {
+    if (!document.hidden && window.scrollY < 700) playHeroMove();
+    scheduleHeroIdle();
+  }, 7000 + Math.random() * 6000);
+}
+if (heroCat && !reduceMotion) scheduleHeroIdle();
+
+// --- 2) 마우스 포인터 나나캣: 컴퓨터 마우스에서만, 움직임 줄이기 설정이 아닐 때만 ---
+//   움직이면 걷기 · 멈추면 서 있기 · 링크 위에서 꼬리 흔들기 · 클릭하면 점프 · 4초 가만히 있으면 하품 후 쿨쿨
+const canFollow = hasNanaCat && !reduceMotion && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+if (canFollow) {
+  const SIZE = 48;                                    // 포인터 크기(px). 클릭 위치는 나나캣 가운데
+  const follower = document.createElement("div");
+  follower.className = "nana-cursor";
+  follower.setAttribute("aria-hidden", "true");
+  const flipBox = document.createElement("div");
+  flipBox.className = "nana-cursor-flip";
+  const pointerCat = NanaCat.create("stand");
+  flipBox.append(pointerCat);
+  follower.append(flipBox);
+  document.body.append(follower);
+
+  let pose = "stand";
+  let oneShot = "";                                   // 지금 하는 한 번짜리 동작(jump · yawn), 없으면 ""
+  let oneShotTimer, stopTimer, sleepTimer, lastX = null, excited = false;
+
+  function setPose(next) {
+    if (pose === next) return;
+    pose = next;
+    pointerCat.dataset.pose = next;
+  }
+  function endOneShot() {
+    clearTimeout(oneShotTimer);
+    oneShot = "";
+  }
+  function playOnce(name, ms, after) {
+    clearTimeout(oneShotTimer);
+    oneShot = name;
+    pose = name;
+    restartPose(pointerCat, name);
+    oneShotTimer = setTimeout(() => { oneShot = ""; after(); }, ms);
+  }
+  function restingPose() { setPose(excited ? "wag" : "stand"); }
+  function armSleep() {                               // 4초 가만히 있으면 하품하고 쿨쿨
+    clearTimeout(sleepTimer);
+    if (excited) return;
+    sleepTimer = setTimeout(() => {
+      playOnce("yawn", 2700, () => setPose("sleep"));
+    }, 4000);
+  }
+
+  document.addEventListener("pointermove", (event) => {
+    if (event.pointerType && event.pointerType !== "mouse") return;
+    if (!follower.classList.contains("show")) {
+      follower.classList.add("show");
+      document.documentElement.classList.add("nana-cursor-on");   // 진짜 포인터는 숨김
+    }
+    follower.style.transform = `translate3d(${event.clientX - SIZE / 2}px, ${event.clientY - SIZE / 2}px, 0)`;
+    if (lastX !== null && Math.abs(event.clientX - lastX) > 1) {
+      flipBox.classList.toggle("flip", event.clientX > lastX);    // 가는 쪽으로 몸을 돌려요
+    }
+    lastX = event.clientX;
+    clearTimeout(sleepTimer);
+    clearTimeout(stopTimer);
+    if (oneShot !== "jump") {                                     // 점프 중이 아니면 걷기 (하품 · 쿨쿨은 깨워요)
+      if (oneShot) endOneShot();
+      setPose("walk");
+    }
+    stopTimer = setTimeout(() => {
+      if (oneShot) return;
+      restingPose();
+      armSleep();
+    }, 160);
+  });
+
+  document.addEventListener("pointerover", (event) => {           // 링크 · 버튼 위에서는 신나요
+    excited = Boolean(event.target.closest && event.target.closest("a, button, [role='button']"));
+    if (!oneShot && pose !== "walk") { restingPose(); if (excited) clearTimeout(sleepTimer); else armSleep(); }
+  });
+
+  document.addEventListener("pointerdown", (event) => {           // 클릭하면 점프!
+    if (event.button !== 0) return;
+    clearTimeout(sleepTimer);
+    playOnce("jump", 900, () => { restingPose(); armSleep(); });
+  });
+
+  document.documentElement.addEventListener("mouseleave", () => follower.classList.remove("show"));
+  document.documentElement.addEventListener("mouseenter", () => { if (lastX !== null) follower.classList.add("show"); });
+}
 
 // --- 맨 위로 가기 ---
 const toTop = document.getElementById("toTop");
